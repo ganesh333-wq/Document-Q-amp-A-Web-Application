@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Q&A Web Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            padding: 20px;
+            border: 2px solid #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #5568d3;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .upload-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .upload-info.show {
+            display: block;
+        }
+
+        .upload-info p {
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .upload-info strong {
+            color: #667eea;
+        }
+
+        .answer-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            background: #f8f9ff;
+            display: none;
+        }
+
+        .answer-box.show {
+            display: block;
+        }
+
+        .answer-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .answer-text {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .sources {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .sources strong {
+            color: #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .sections {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Document Q&A</h1>
+            <p class="subtitle">Upload a document and ask questions about its content</p>
+        </header>
+
+        <div class="sections">
+            <!-- Upload Section -->
+            <div class="section">
+                <h2><span class="section-icon">📤</span>Upload Document</h2>
+                
+                <div id="uploadMessage" class="message"></div>
+
+                <div class="form-group">
+                    <label for="fileInput">Select a .txt file:</label>
+                    <input type="file" id="fileInput" accept=".txt">
+                </div>
+
+                <button id="uploadBtn" onclick="uploadDocument()">Upload Document</button>
+
+                <p class="info-text">📝 Only .txt files are supported. Max file size: no limit</p>
+
+                <div id="uploadInfo" class="upload-info">
+                    <p>✓ <strong>Uploaded:</strong> <span id="filename"></span></p>
+                    <p>✓ <strong>Chunks created:</strong> <span id="chunks"></span></p>
+                    <p style="color: #667eea; font-weight: 600; margin-top: 10px;">Document ID: <span id="docId" style="font-family: monospace; font-size: 0.9em;"></span></p>
+                </div>
+            </div>
+
+            <!-- Q&A Section -->
+            <div class="section">
+                <h2><span class="section-icon">❓</span>Ask Question</h2>
+
+                <div id="qaMessage" class="message"></div>
+
+                <div class="form-group">
+                    <label for="questionInput">Your question:</label>
+                    <textarea id="questionInput" rows="4" placeholder="Ask anything about the document..."></textarea>
+                </div>
+
+                <button id="askBtn" onclick="askQuestion()" disabled>Ask Question</button>
+
+                <p class="info-text">💡 Questions are answered based only on the document content</p>
+
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Thinking...</p>
+                </div>
+
+                <div id="answerBox" class="answer-box">
+                    <h3>Answer:</h3>
+                    <p id="answerText" class="answer-text"></p>
+                    <p id="sourcesText" class="sources"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.port === '8001'
+            ? 'http://localhost:8000'
+            : window.location.origin;
+        let currentDocumentId = null;
+
+        // Check API health on load
+        window.addEventListener('load', checkApiHealth);
+
+        async function checkApiHealth() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (!response.ok) {
+                    showMessage('uploadMessage', '⚠️ Backend API is not running. Start it with: python -m uvicorn main:app --reload', 'warning');
+                }
+            } catch (error) {
+                showMessage('uploadMessage', '⚠️ Cannot connect to backend API at ' + API_BASE_URL, 'warning');
+            }
+        }
+
+        function showMessage(elementId, message, type = 'info') {
+            const msgElement = document.getElementById(elementId);
+            msgElement.textContent = message;
+            msgElement.className = `message show ${type}`;
+        }
+
+        function hideMessage(elementId) {
+            const msgElement = document.getElementById(elementId);
+            msgElement.className = 'message';
+        }
+
+        async function uploadDocument() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                showMessage('uploadMessage', '⚠️ Please select a file', 'warning');
+                return;
+            }
+
+            const uploadBtn = document.getElementById('uploadBtn');
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_BASE_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Upload failed');
+                }
+
+                const data = await response.json();
+                currentDocumentId = data.document_id;
+
+                // Display upload success
+                document.getElementById('filename').textContent = data.filename;
+                document.getElementById('chunks').textContent = data.total_chunks;
+                document.getElementById('docId').textContent = data.document_id;
+                document.getElementById('uploadInfo').classList.add('show');
+
+                showMessage('uploadMessage', '✓ Document uploaded successfully!', 'success');
+
+                // Enable ask button
+                document.getElementById('askBtn').disabled = false;
+                fileInput.disabled = true;
+                uploadBtn.disabled = true;
+
+            } catch (error) {
+                showMessage('uploadMessage', `✗ Error: ${error.message}`, 'error');
+            } finally {
+                uploadBtn.textContent = 'Upload Document';
+                uploadBtn.disabled = false;
+            }
+        }
+
+        async function askQuestion() {
+            const questionInput = document.getElementById('questionInput');
+            const question = questionInput.value.trim();
+
+            if (!question) {
+                showMessage('qaMessage', '⚠️ Please enter a question', 'warning');
+                return;
+            }
+
+            if (!currentDocumentId) {
+                showMessage('qaMessage', '⚠️ Please upload a document first', 'warning');
+                return;
+            }
+
+            const askBtn = document.getElementById('askBtn');
+            askBtn.disabled = true;
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('answerBox').classList.remove('show');
+            hideMessage('qaMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        document_id: currentDocumentId,
+                        question: question
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to get answer');
+                }
+
+                const data = await response.json();
+
+                // Display answer
+                document.getElementById('answerText').textContent = data.answer;
+
+                if (data.sources && data.sources.length > 0) {
+                    document.getElementById('sourcesText').innerHTML = 
+                        `<strong>Sources:</strong> Chunks ${data.sources.join(', ')}`;
+                } else {
+                    document.getElementById('sourcesText').innerHTML = '';
+                }
+
+                document.getElementById('answerBox').classList.add('show');
+                showMessage('qaMessage', '✓ Answer generated successfully', 'success');
+
+            } catch (error) {
+                showMessage('qaMessage', `✗ Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                askBtn.disabled = false;
+            }
+        }
+
+        // Allow asking question by pressing Ctrl/Cmd + Enter
+        document.getElementById('questionInput').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                askQuestion();
+            }
+        });
+
+        // Allow uploading by pressing Enter when file is selected
+        document.getElementById('fileInput').addEventListener('change', () => {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                // Can upload now
+            }
+        });
+    </script>
+</body>
+</html>
