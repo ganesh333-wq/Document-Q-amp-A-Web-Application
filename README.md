@@ -327,8 +327,11 @@ Render runs:
 
 ```bash
 pip install -r backend/requirements.txt
-cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+bash start-render.sh
 ```
+
+Render uses `.python-version` for the Python runtime and `start-render.sh` to bind
+Uvicorn to Render's assigned web port.
 
 ## 📈 Performance Metrics
 
