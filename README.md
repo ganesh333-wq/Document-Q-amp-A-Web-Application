@@ -308,30 +308,7 @@ The system prompt explicitly tells the LLM:
 
 ### 4. In-Memory Storage
 - Documents stored in `documents_store` dictionary
-- **For Production:** Use PostgreSQL with pgvector extension
-- **For Development:** Simple and sufficient
-
-## 🚀 Deployment
-
-### Using Render
-
-This repo includes `render.yaml` for a single Render web service. FastAPI serves the
-frontend at `/` and the API endpoints from the same hosted URL.
-
-1. Push the repository to GitHub.
-2. Create a Render Blueprint from the repository.
-3. Set the secret `GROQ_API_KEY` when Render asks for it.
-4. Open the generated Render service URL.
-
-Render runs:
-
-```bash
-pip install -r backend/requirements.txt
-bash start-render.sh
-```
-
-Render uses `.python-version` for the Python runtime and `start-render.sh` to bind
-Uvicorn to Render's assigned web port.
+- Simple and sufficient for this coding task
 
 ## 📈 Performance Metrics
 

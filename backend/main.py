@@ -4,10 +4,8 @@ Implements: /upload, /ask, /health endpoints
 Using Groq for LLM and Sentence Transformers for embeddings
 """
 import os
-from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
@@ -42,7 +40,6 @@ LLM_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHUNK_SIZE = 300
 CHUNK_OVERLAP = 50
-FRONTEND_INDEX = Path(__file__).resolve().parent.parent / "frontend" / "index.html"
 
 QA_PROMPT = ChatPromptTemplate.from_messages([
     (
@@ -62,23 +59,28 @@ Document Context:
     ("human", "{question}"),
 ])
 
-# LangChain owns the chatbot prompt and answer-generation pipeline.
-qa_chain = (
-    QA_PROMPT
-    | ChatGroq(
-        api_key=os.getenv("GROQ_API_KEY"),
-        model=LLM_MODEL,
-        temperature=0.7,
-        max_tokens=500,
-    )
-    | StrOutputParser()
-)
+qa_chain = None
 
 
-@app.get("/", include_in_schema=False)
-async def serve_frontend():
-    """Serve the single-page frontend from the hosted API origin."""
-    return FileResponse(FRONTEND_INDEX)
+def get_qa_chain():
+    """Build the LangChain chatbot pipeline on first use."""
+    global qa_chain
+    if qa_chain is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise RuntimeError("GROQ_API_KEY environment variable is not set")
+
+        qa_chain = (
+            QA_PROMPT
+            | ChatGroq(
+                api_key=api_key,
+                model=LLM_MODEL,
+                temperature=0.7,
+                max_tokens=500,
+            )
+            | StrOutputParser()
+        )
+    return qa_chain
 
 
 @app.post("/upload", response_model=UploadResponse)
@@ -101,7 +103,13 @@ async def upload_document(file: UploadFile = File(...)):
     
     # Read file content
     content = await file.read()
-    text = content.decode("utf-8")
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be valid UTF-8 text"
+        )
     
     # Validate file is not empty
     if not text.strip():
@@ -171,7 +179,7 @@ async def ask_question(request: AskRequest):
     ])
     
     try:
-        answer = qa_chain.invoke({
+        answer = get_qa_chain().invoke({
             "context": context,
             "question": request.question,
         })

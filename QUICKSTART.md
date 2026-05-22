@@ -110,7 +110,7 @@ curl "http://localhost:8000/health"
                ▼
 ┌─────────────────────────────────────────┐
 │  Embed each chunk using                │
-│  text-embedding-3-small                │
+│  all-MiniLM-L6-v2                     │
 └──────────────┬──────────────────────────┘
                │
                ▼
@@ -138,7 +138,7 @@ curl "http://localhost:8000/health"
                │
                ▼
 ┌─────────────────────────────────────────┐
-│  Send chunks + question to GPT-3.5      │
+│  Send chunks + question to Groq LLM     │
 │  with "answer only from context"        │
 │  constraint                             │
 └──────────────┬──────────────────────────┘

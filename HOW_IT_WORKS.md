@@ -23,10 +23,10 @@ This is a **Retrieval-Augmented Generation (RAG)** system that answers questions
    - Chunk 2: "created in 1991 by Guido van Rossum. Python is known for" (300 chars)
    - Note: 50-character overlap between chunks for context preservation
    ↓
-5. Each chunk gets embedded using text-embedding-3-small:
-   - Chunk 1 → [0.123, -0.456, 0.789, ...] (1536 dimensions)
-   - Chunk 2 → [0.124, -0.450, 0.785, ...] (1536 dimensions)
-   - Chunk N → [0.120, -0.460, 0.790, ...] (1536 dimensions)
+5. Each chunk gets embedded using all-MiniLM-L6-v2:
+   - Chunk 1 → [0.123, -0.456, 0.789, ...] (384 dimensions)
+   - Chunk 2 → [0.124, -0.450, 0.785, ...] (384 dimensions)
+   - Chunk N → [0.120, -0.460, 0.790, ...] (384 dimensions)
    ↓
 6. Chunks + embeddings stored in in-memory dictionary:
    {
@@ -47,8 +47,8 @@ This is a **Retrieval-Augmented Generation (RAG)** system that answers questions
 8. Frontend displays success message and enables Q&A section
 ```
 
-**Key Technology: text-embedding-3-small**
-- Converts text to 1536-dimensional vectors
+**Key Technology: all-MiniLM-L6-v2**
+- Converts text to 384-dimensional vectors
 - Similar text has similar embeddings (vectors close in space)
 - Used for finding relevant chunks quickly
 
@@ -63,7 +63,7 @@ This is a **Retrieval-Augmented Generation (RAG)** system that answers questions
      "question": "What year was Python created?"
    }
    ↓
-3. Backend embeds the question using text-embedding-3-small:
+3. Backend embeds the question using all-MiniLM-L6-v2:
    "What year was Python created?" → [0.125, -0.455, 0.788, ...]
    ↓
 4. RAG System calculates similarity between question embedding and ALL chunk embeddings
@@ -94,7 +94,7 @@ This is a **Retrieval-Augmented Generation (RAG)** system that answers questions
     [Chunk 3]: Created by Guido van Rossum, Python is known for...
     [Chunk 2]: Python has simple syntax and is widely used..."
    ↓
-7. Send to GPT-3.5-turbo with CONSTRAINED SYSTEM PROMPT:
+7. Send to Groq LLM with CONSTRAINED SYSTEM PROMPT:
    
    System Prompt:
    "You are a helpful assistant that answers questions based ONLY 
@@ -113,7 +113,7 @@ This is a **Retrieval-Augmented Generation (RAG)** system that answers questions
     
     User Question: What year was Python created?"
    ↓
-8. GPT-3.5-turbo generates answer:
+8. Groq LLM generates answer:
    
    Response:
    "According to the document, Python was created in 1991."
@@ -138,7 +138,7 @@ This is a **Retrieval-Augmented Generation (RAG)** system that answers questions
 
 ```
 Text:  "Python is a programming language"
-       ↓ (text-embedding-3-small)
+       ↓ (all-MiniLM-L6-v2)
 Vector: [0.123, -0.456, 0.789, ..., 0.234]
         (1536 dimensions)
 ```
@@ -269,7 +269,7 @@ Step 4: Build context
              approximately 4.54 billion years old. The Moon orbits 
              Earth every 27.3 days."
 
-Step 5: Call GPT-3.5-turbo
+Step 5: Call Groq LLM
   System Prompt: "Answer from context only. If not in document, say so."
   Context: "The Earth is... approximately 4.54 billion years old..."
   Question: "How old is the Earth?"
@@ -308,32 +308,30 @@ Step 6: Return answer
 ## 💰 Cost Breakdown
 
 ### Per Upload (500KB file, 50 chunks)
-- Embeddings: 50 chunks × $0.02/1M tokens ≈ $0.0001
+- Embeddings: Free local Sentence Transformers processing
 
 ### Per Question
-- Question embedding: $0.00001
-- GPT-3.5-turbo response: ~200 tokens × $0.50/1M ≈ $0.0001
-- **Total: ~$0.00011 per question**
+- Question embedding: Free local Sentence Transformers processing
+- LLM response: Uses Groq API free tier/pricing
 
 ## 🔐 Data Privacy
 
 **Important:** 
 - Documents stored in memory (cleared when server restarts)
-- No documents sent to OpenAI (only chunks sent for embeddings/answers)
 - API key never exposed to frontend
-- All communication via HTTPS (when deployed)
+- Embeddings run locally; only retrieved context chunks are sent to Groq for answer generation
 
 ## 📈 Performance Characteristics
 
 | Operation | Time | Cost |
 |-----------|------|------|
-| Upload 10KB file | ~2-3 sec | $0.0001 |
-| Ask question | ~1-2 sec | $0.0001 |
+| Upload 10KB file | ~1 sec after first model download | Free |
+| Ask question | ~1-2 sec | Groq free tier/pricing |
 | Retrieve health | <100ms | Free |
 
 **Bottlenecks:**
-- Network latency to OpenAI API
-- Text embedding generation (most time)
+- Network latency to Groq API
+- First-time Sentence Transformers model download
 - LLM response generation
 
 ## 🚀 Scaling Considerations

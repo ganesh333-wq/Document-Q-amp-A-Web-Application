@@ -3,22 +3,28 @@ RAG (Retrieval-Augmented Generation) implementation
 Handles chunking, embedding, and retrieval of document chunks
 Using Groq for LLM and Sentence Transformers for embeddings
 """
-import os
-import json
 import uuid
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
 # Load environment variables
 load_dotenv()
 
-# Initialize Sentence Transformers embedding model (local, free)
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
+embedding_model: Optional[SentenceTransformer] = None
 
 # In-memory document storage (in production, use a database)
 # Format: {document_id: {"filename": str, "chunks": [str], "embeddings": [[float]]}}
 documents_store = {}
+
+
+def get_embedding_model() -> SentenceTransformer:
+    """Load the local embedding model on first use."""
+    global embedding_model
+    if embedding_model is None:
+        embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    return embedding_model
 
 
 def chunk_text(text: str, chunk_size: int = 300, overlap: int = 50) -> List[str]:
@@ -58,7 +64,7 @@ def embed_text(text: str) -> List[float]:
     Returns:
         Embedding vector (384 dimensions)
     """
-    embedding = embedding_model.encode(text, convert_to_tensor=False)
+    embedding = get_embedding_model().encode(text, convert_to_tensor=False)
     return embedding.tolist()
 
 
@@ -73,7 +79,7 @@ def embed_chunks(chunks: List[str]) -> List[List[float]]:
         List of embedding vectors (384 dimensions each)
     """
     # Use batch encoding for better performance
-    embeddings = embedding_model.encode(chunks, convert_to_tensor=False)
+    embeddings = get_embedding_model().encode(chunks, convert_to_tensor=False)
     return [emb.tolist() for emb in embeddings]
 
 

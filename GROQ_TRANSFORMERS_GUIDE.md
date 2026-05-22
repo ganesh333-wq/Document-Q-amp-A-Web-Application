@@ -26,12 +26,12 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 ### After (Groq + Sentence Transformers)
 ```python
-# LLM: llama-3.3-70b-versatile (Groq API)
-# Embeddings: all-MiniLM-L6-v2 (Local, free)
-from groq import Groq
+# LLM: llama-3.3-70b-versatile (Groq API via LangChain)
+# Embeddings: all-MiniLM-L6-v2 (local, free)
+from langchain_groq import ChatGroq
 from sentence_transformers import SentenceTransformer
 
-groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model="llama-3.3-70b-versatile")
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 ```
 
@@ -75,7 +75,7 @@ pip install -r requirements.txt
 **Dependencies:**
 - `langchain` - Prompt chain for the chatbot pipeline
 - `langchain-groq` - LangChain integration for Groq chat models
-- `sentence-transformers==2.2.2` - Local embeddings (all-MiniLM-L6-v2)
+- `sentence-transformers==3.0.1` - Local embeddings (all-MiniLM-L6-v2)
 - `fastapi==0.104.1` - Web framework
 - `uvicorn==0.24.0` - ASGI server
 - `python-dotenv==1.0.0` - Load environment variables
@@ -111,17 +111,15 @@ INFO:     Application startup complete
 
 **How it works:**
 ```python
-# In main.py /ask endpoint
-response = groq_client.chat.completions.create(
+# In main.py
+qa_chain = QA_PROMPT | ChatGroq(
+    api_key=os.getenv("GROQ_API_KEY"),
     model="llama-3.3-70b-versatile",
-    messages=[
-        {"role": "system", "content": "Answer from context only"},
-        {"role": "user", "content": "What is this about?"}
-    ],
     temperature=0.7,
-    max_tokens=500
-)
-answer = response.choices[0].message.content
+    max_tokens=500,
+) | StrOutputParser()
+
+answer = qa_chain.invoke({"context": context, "question": question})
 ```
 
 ---

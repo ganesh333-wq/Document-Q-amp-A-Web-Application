@@ -333,9 +333,9 @@
     </div>
 
     <script>
-        const API_BASE_URL = window.location.port === '8001'
-            ? 'http://localhost:8000'
-            : window.location.origin;
+        const API_BASE_URL = window.location.port === '8000'
+            ? window.location.origin
+            : 'http://localhost:8000';
         let currentDocumentId = null;
 
         // Check API health on load
@@ -375,6 +375,7 @@
             const uploadBtn = document.getElementById('uploadBtn');
             uploadBtn.disabled = true;
             uploadBtn.textContent = 'Uploading...';
+            let uploadSucceeded = false;
 
             try {
                 const formData = new FormData();
@@ -400,6 +401,7 @@
                 document.getElementById('uploadInfo').classList.add('show');
 
                 showMessage('uploadMessage', '✓ Document uploaded successfully!', 'success');
+                uploadSucceeded = true;
 
                 // Enable ask button
                 document.getElementById('askBtn').disabled = false;
@@ -410,7 +412,7 @@
                 showMessage('uploadMessage', `✗ Error: ${error.message}`, 'error');
             } finally {
                 uploadBtn.textContent = 'Upload Document';
-                uploadBtn.disabled = false;
+                uploadBtn.disabled = uploadSucceeded;
             }
         }
 
