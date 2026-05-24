@@ -314,26 +314,6 @@ Step 6: Return answer
 - Question embedding: Free local Sentence Transformers processing
 - LLM response: Uses Groq API free tier/pricing
 
-## 🔐 Data Privacy
-
-**Important:** 
-- Documents stored in memory (cleared when server restarts)
-- API key never exposed to frontend
-- Embeddings run locally; only retrieved context chunks are sent to Groq for answer generation
-
-## 📈 Performance Characteristics
-
-| Operation | Time | Cost |
-|-----------|------|------|
-| Upload 10KB file | ~1 sec after first model download | Free |
-| Ask question | ~1-2 sec | Groq free tier/pricing |
-| Retrieve health | <100ms | Free |
-
-**Bottlenecks:**
-- Network latency to Groq API
-- First-time Sentence Transformers model download
-- LLM response generation
-
 ## 🚀 Scaling Considerations
 
 ### For Production:
