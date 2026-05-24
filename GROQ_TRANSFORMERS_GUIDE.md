@@ -1,42 +1,5 @@
 # Groq + Sentence Transformers Setup Guide
 
-## 🚀 Why Switch from OpenAI to Groq + Sentence Transformers?
-
-| Feature | OpenAI | Groq + Sentence Transformers |
-|---------|--------|------|
-| **Cost** | ~$0.0001 per question | **FREE** |
-| **Speed** | 2-3 seconds | **<1 second** (Groq) |
-| **Embeddings** | API calls ($0.00002) | **Local, instant** |
-| **LLM Quality** | High | High (Llama 3.3 70B) |
-| **Quota Issues** | ❌ Yes | ✅ No (free tier) |
-| **Internet Required** | ✅ Yes | ✅ Yes |
-| **Setup** | Easy | Easy |
-
----
-
-## 📋 What Was Changed
-
-### Before (OpenAI)
-```python
-# LLM: gpt-3.5-turbo (API)
-# Embeddings: text-embedding-3-small (API)
-from openai import OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-```
-
-### After (Groq + Sentence Transformers)
-```python
-# LLM: llama-3.3-70b-versatile (Groq API via LangChain)
-# Embeddings: all-MiniLM-L6-v2 (local, free)
-from langchain_groq import ChatGroq
-from sentence_transformers import SentenceTransformer
-
-llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model="llama-3.3-70b-versatile")
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-```
-
----
-
 ## ✅ Step 1: Get a Groq API Key (FREE)
 
 ### 1. Sign up at Groq Console
@@ -269,15 +232,7 @@ Features:
 | LLM Response | 2-3 sec | **<1 sec** |
 | **Total** | ~7 sec | **<2 sec** |
 
-### Cost per Operation:
 
-| Operation | OpenAI | Groq + Transformers |
-|-----------|--------|-----|
-| Upload | $0.0001 | **FREE** |
-| Question | $0.0001 | **FREE** |
-| **Total** | $0.0002 | **FREE** |
-
----
 
 ## 🔧 Troubleshooting
 
@@ -318,24 +273,12 @@ This is normal and happens only once!
 
 ---
 
-## 📚 Key Files Changed
-
-1. **`requirements.txt`** - Updated dependencies
-2. **`rag.py`** - Now uses Sentence Transformers for embeddings
-3. **`main.py`** - Now uses Groq for LLM
-4. **`.env`** - Changed from `OPENAI_API_KEY` to `GROQ_API_KEY`
-5. **`.env.example`** - Template with Groq key format
-
----
-
 ## 🎯 Summary
 
 ✅ **LLM:** Groq's llama-3.3-70b-versatile (fast, free tier)  
 ✅ **Embeddings:** Sentence Transformers all-MiniLM-L6-v2 (local, instant)  
 ✅ **Backend:** FastAPI (3 endpoints)  
 ✅ **Frontend:** HTML/CSS/JavaScript  
-
-**Result:** Free, fast, local-first Document Q&A system! 🚀
 
 ---
 
