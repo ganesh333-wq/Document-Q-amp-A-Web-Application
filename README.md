@@ -317,19 +317,7 @@ The system prompt explicitly tells the LLM:
 - **Question Response:** <2 seconds (local embeddings + fast Groq LLM)
 - **Embedding Speed:** <10ms per chunk (local processing)
 
-### Cost (with Groq + Sentence Transformers):
-- **Cost per Upload:** **$0.00 (completely FREE)**
-- **Cost per Question:** **$0.00 (completely FREE)**
-- **Total Monthly Cost:** **$0 (free tier covers most use cases)**
 
-### vs OpenAI:
-| Metric | OpenAI | Groq + Transformers |
-|--------|--------|-----|
-| Upload Speed | ~5-10 sec | **<1 sec** |
-| Question Speed | 2-3 sec | **<2 sec** |
-| Cost/Upload | $0.0001 | **$0.00** |
-| Cost/Question | $0.0002 | **$0.00** |
-| **Monthly 1000 Questions** | **$0.30** | **$0.00** |
 
 ## 🐛 Troubleshooting
 
@@ -357,16 +345,7 @@ echo $GROQ_API_KEY  # Should start with "gsk-"
 - Subsequent questions are cached in current session
 - For production, use database caching
 
-## 📚 Further Reading
 
-- [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [RAG Systems](https://www.langchain.com/)
-- [Cosine Similarity](https://en.wikipedia.org/wiki/Cosine_similarity)
-
-## 📄 License
-
-This project is provided as-is for educational purposes.
 
 ## ✅ Checklist
 
